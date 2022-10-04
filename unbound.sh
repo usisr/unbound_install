@@ -1,4 +1,5 @@
 #!/bin/sh
+main(){
 echo "Adresse ip du server"
 read -r interface
 
@@ -20,7 +21,8 @@ fi
 if ! [ -x "$(dpkg -l | grep unbound)"]; then
   apt install unbound -y
 fi
-
+}
+modif_unbound(){
 sed 's/INT/$interface/g' /etc/unbound/unbound.conf
 
 sed 's/ADDRR/mask_reseau/g' /etc/unbound/unbound.conf
@@ -31,3 +33,6 @@ chown unbound:unbound -R /var/lib/unbound/
 touch /var/lib/unbound.log
 chown unbound:unbound -R /var/lib/unbound.log
 echo "nameserver 127.0.0.1" > /etc/resolv.conf
+}
+main()
+modif_unbound()
