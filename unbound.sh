@@ -1,5 +1,5 @@
 #!/bin/sh
-main(){
+
 echo "Adresse ip du server"
 read -r interface
 
@@ -7,32 +7,22 @@ echo "masque du réseau"
 read -r mask_reseau
 
 echo "Adresse réseau"
-read -r addr-reseau
+read -r addr_reseau
 
-
-#Cherche si curl est installer
-if ! [ -x "$(command -v curl)" ]; then
-  echo "* curl is required in order for this script to work."
-  echo "* install using apt (Debian and derivatives) or yum/dnf (CentOS)"
-  exit 1
-fi
 
 #Install unbound 
 if ! [ -x "$(dpkg -l | grep unbound)"]; then
   apt install unbound -y
 fi
-}
-modif_unbound(){
-sed 's/INT/$interface/g' /etc/unbound/unbound.conf
+cp unbound.conf /etc/unbound/unbound.conf
 
-sed 's/ADDRR/mask_reseau/g' /etc/unbound/unbound.conf
+sed 's/INT/'"$interface"'/g' /etc/unbound/unbound.conf
 
-sed 's/MASK/$addr-reseau/g' /etc/unbound/unbound.conf
+sed 's/ADDRR/'"$addr_reseau"'/g' /etc/unbound/unbound.conf
+
+sed 's/MASK/'"$mask_reseau"'/g' /etc/unbound/unbound.conf
 
 chown unbound:unbound -R /var/lib/unbound/
 touch /var/lib/unbound.log
 chown unbound:unbound -R /var/lib/unbound.log
-echo "nameserver 127.0.0.1" > /etc/resolv.conf
-}
-main()
-modif_unbound()
+echo "nameserver 127.0.0.1" >> /etc/resolv.conf
